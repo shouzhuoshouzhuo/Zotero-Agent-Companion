@@ -1,0 +1,61 @@
+import type { BackendId, PanelSettings, PromptEntry } from "../types.ts";
+import { DEFAULT_APPEARANCE, readAppearance } from "../ui/appearance.ts";
+import { LANGUAGES, languageForLocale } from "../ui/settings-model.ts";
+import { UI_LANGUAGES, resolveLanguage, t } from "../i18n.ts";
+
+/** The four prompts a new user starts with, in the panel's language (a prompt once edited is saved as it is). */
+export const defaultPrompts = (lang = "en"): PromptEntry[] => [
+  { id: "summary-detailed", slot: 1, title: t("prompt.detailed.title", undefined, lang), text: t("prompt.detailed.text", undefined, lang) },
+  { id: "summary-short", slot: 2, title: t("prompt.short.title", undefined, lang), text: t("prompt.short.text", undefined, lang) },
+  { id: "hypotheses", slot: 3, title: t("prompt.hypotheses.title", undefined, lang), text: t("prompt.hypotheses.text", undefined, lang) },
+  { id: "compare", slot: 4, title: t("prompt.compare.title", undefined, lang), text: t("prompt.compare.text", undefined, lang) },
+];
+
+const each = <T>(v: T): Record<BackendId, T> => ({ "claude-code": v, codex: v, pi: v, custom: v });
+
+export const DEFAULT_SETTINGS: PanelSettings = {
+  backend: "codex",
+  // "" = the backend's own default; the pickers list what each backend really offers.
+  model: each(""),
+  mode: each(""),
+  effort: each(""),
+  auth: { "claude-code": "subscription", codex: "subscription", pi: "api-key", custom: "api-key" },
+  prompts: defaultPrompts(),
+  skills: {},
+  followFocus: true,
+  attachSelection: true,
+  attachAreas: true,
+  enterToSend: true,
+  showThinking: true,
+  expandTools: false,
+  showUsage: false,
+  openAtStart: false,
+  welcomed: false,
+  chatFolder: "",
+  translate: true,
+  translateTo: "en", // withDefaults puts Zotero's own language here
+  translateModel: each(""),
+  uiLanguage: "",
+  appearance: DEFAULT_APPEARANCE,
+};
+
+/**
+ * Saved settings laid over the defaults; the per-backend maps merge key by key so a new backend never has holes, and the
+ * appearance is validated field by field. The translate target is a known language, else the one `locale` (Zotero's UI
+ * language) reads; the interface language a known one or "" (Zotero's), and the default prompts are in it.
+ */
+export function withDefaults(saved: Partial<PanelSettings>, locale?: string): PanelSettings {
+  const d = DEFAULT_SETTINGS;
+  return {
+    ...d, ...saved,
+    model: { ...d.model, ...saved.model }, mode: { ...d.mode, ...saved.mode },
+    effort: { ...d.effort, ...saved.effort }, auth: { ...d.auth, ...saved.auth },
+    skills: saved.skills && typeof saved.skills === "object" ? saved.skills : {},
+    translate: typeof saved.translate === "boolean" ? saved.translate : d.translate,
+    translateTo: LANGUAGES.some((l) => l.id === saved.translateTo) ? saved.translateTo! : languageForLocale(locale),
+    translateModel: { ...d.translateModel, ...saved.translateModel },
+    uiLanguage: UI_LANGUAGES.some((l) => l.id === saved.uiLanguage) ? saved.uiLanguage! : "",
+    prompts: Array.isArray(saved.prompts) ? saved.prompts : defaultPrompts(resolveLanguage(saved.uiLanguage, locale)),
+    appearance: readAppearance(saved.appearance),
+  };
+}

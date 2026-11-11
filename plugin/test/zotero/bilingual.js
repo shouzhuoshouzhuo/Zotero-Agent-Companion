@@ -1,0 +1,63 @@
+// Integration test in the repository's disposable Zotero profile, with a fake ACP agent.
+// No real library, account, model API, or business documents are used.
+async function main(ctx) {
+  const { Zotero, IOUtils, PathUtils, win } = ctx;
+  const check = (v, message) => { if (!v) throw new Error(message); };
+  const key = "extensions.zotero-chat.settings";
+  Zotero.Prefs.set(key, JSON.stringify({ backend: "codex", welcomed: true, translateTo: "zh-Hans", translateModel: { codex: "gpt-6-luna" } }), true);
+  await ctx.resize(1280, 900);
+  const pdfPath = PathUtils.join(Zotero.Profile.dir, "bilingual-fixture.pdf");
+  const objs = []; const add = body => { objs.push(body); return objs.length; };
+  const catalog = add(""), tree = add(""), font = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  const kids = Array.from({ length: 20 }, (_, index) => {
+    const text = `BT /F1 12 Tf 72 720 Td 18 TL (Section ${index + 1}. The method controls information flow in an agent.) Tj T* (The paper distinguishes trusted instructions from untrusted observations.) Tj T* (This paragraph is generated locally for the bilingual reader test.) Tj ET`;
+    const content = add(`<< /Length ${text.length} >>\nstream\n${text}\nendstream`);
+    return add(`<< /Type /Page /Parent ${tree} 0 R /MediaBox [0 0 612 792] /Contents ${content} 0 R /Resources << /Font << /F1 ${font} 0 R >> >> >>`);
+  });
+  objs[catalog - 1] = `<< /Type /Catalog /Pages ${tree} 0 R >>`;
+  objs[tree - 1] = `<< /Type /Pages /Kids [${kids.map(k => k + " 0 R").join(" ")}] /Count ${kids.length} >>`;
+  let pdf = "%PDF-1.4\n"; const offsets = objs.map((body, i) => { const start = pdf.length; pdf += `${i + 1} 0 obj\n${body}\nendobj\n`; return start; });
+  const xref = pdf.length;
+  pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + offsets.map(n => String(n).padStart(10, "0") + " 00000 n \n").join("");
+  pdf += `trailer\n<< /Size ${objs.length + 1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  await IOUtils.writeUTF8(pdfPath, pdf);
+  const att = await Zotero.Attachments.importFromFile({ file: Zotero.File.pathToFile(pdfPath), libraryID: Zotero.Libraries.userLibraryID });
+  const sourcePath = await att.getFilePathAsync();
+  const sourceBytes = await IOUtils.read(sourcePath);
+  await Zotero.Reader.open(att.id);
+  const reader = await ctx.waitFor(() => Zotero.Reader._readers.find(r => r.itemID === att.id && r._internalReader?._primaryView), "PDF reader");
+  const manager = ctx.plugin.bilingual();
+  await manager.toggle(reader);
+  check(manager.status().active, "bilingual reader did not start");
+  const raw = reader._internalReader.wrappedJSObject ?? reader._internalReader;
+  const view = raw._primarySDTView.wrappedJSObject ?? raw._primarySDTView;
+  const doc = view._iframe.contentDocument;
+  await ctx.waitFor(() => manager.status().done > 0 || manager.status().failed > 0, "a visible paragraph finishes", 25000);
+  check(manager.status().failed === 0, "translation failed: " + doc.querySelector(".zmc-bi-note")?.textContent);
+  const model = manager.status().model;
+  check(model === "gpt-6-luna", "wrong model: " + model);
+  await ctx.sleep(1200);
+  const before = manager.status();
+  check(before.done < before.total, "offscreen paragraphs were translated");
+  check(doc.querySelector(".zmc-bi-slot[data-state=done] .zmc-bi-text")?.textContent, "no inline translation");
+  check(doc.querySelector(".zmc-bi-slot[data-state=done]").previousElementSibling.hasAttribute("data-ref-path"), "translation is not directly after its original");
+  const cacheDir = PathUtils.join(Zotero.Profile.dir, "zotero-chat", "bilingual-cache");
+  const files = (await IOUtils.getChildren(cacheDir)).filter(path => path.endsWith(`/${att.libraryID}-${att.key}.json`)); check(files.length === 1, "cache was not persisted");
+  const cache = JSON.parse(await IOUtils.readUTF8(files[0])); check(cache.entries.length > 0, "cache is empty");
+  check(cache.entries.every(([key]) => JSON.parse(key)[2] === "gpt-6-luna"), "cache has wrong model identity");
+  await ctx.snapshot("bilingual-first-pass");
+  await manager.toggle(reader);
+  check(!raw._primarySDTView, "reading mode survived exit");
+  await manager.dispose(); ctx.plugin.bilingualReader = null;
+  const restarted = ctx.plugin.bilingual();
+  await restarted.toggle(reader);
+  await ctx.waitFor(() => restarted.status().cached > 0, "persistent cache hit after rebuilding the manager", 20000);
+  await ctx.sleep(800);
+  const after = restarted.status();
+  check(after.sessionsStarted === 0, "a cache-only reading started a model session: " + JSON.stringify(after));
+  await ctx.snapshot("bilingual-cached-pass");
+  await restarted.toggle(reader);
+  const finalBytes = await IOUtils.read(sourcePath);
+  check(finalBytes.length === sourceBytes.length && finalBytes.every((b, i) => b === sourceBytes[i]), "the original PDF was modified");
+  return { before, after, cacheEntries: cache.entries.length, model, originalUnmodified: true };
+}

@@ -1,0 +1,21 @@
+name: Build and unit checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  plugin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: plugin/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: node --experimental-strip-types --test test/setup-model.test.ts test/companion-model.test.ts test/ui/graph-model.test.ts test/wiki-document.test.ts test/bilingual.test.ts test/bilingual-layout.test.ts test/agent/translate.test.ts test/agent/quota.test.ts
+      - run: npm run build

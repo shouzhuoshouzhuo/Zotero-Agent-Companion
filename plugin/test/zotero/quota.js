@@ -1,0 +1,46 @@
+async function main(ctx) {
+  const check=(v,m)=>{if(!v)throw Error(m);};
+  const injected=ctx.plugin.windows.get(ctx.win);
+  await ctx.resize(1280,900);
+  injected.show();
+  const root=await ctx.waitFor(()=>ctx.win.document.getElementById('zmc-root')?.shadowRoot?.querySelector('textarea') && ctx.win.document.getElementById('zmc-root').shadowRoot,'panel');
+  const host=ctx.plugin.panel().host;
+  const settings = async patch => { ctx.Zotero.Prefs.set('extensions.zotero-chat.settings', JSON.stringify({...host.getSettings(),...patch}), true); await ctx.sleep(50); };
+  let calls=0, fail=false;
+  host.runtime.accountQuota=async()=>{
+    calls++;
+    if(fail)throw Error('offline');
+    return {windows:[{remainingPercent:89,minutes:10080,resetsAt:1794897109},{remainingPercent:72,minutes:300,resetsAt:1794420000}],plan:'pro',fetchedAt:Date.now()};
+  };
+  host.runtime.catalog=async()=>({models:[],modes:[],efforts:[]});
+  await settings({backend:'codex',auth:{...host.getSettings().auth,codex:'subscription'},uiLanguage:'zh-Hans',welcomed:true});
+  const $=s=>root.querySelector(s);
+  await ctx.waitFor(()=>$('.quota__summary')?.textContent==='剩余 89%','quota loaded');
+  check(!$('.quota').hidden,'quota visible');
+  $('.quota__summary').click();
+  await ctx.waitFor(()=>$('.quota').open,'details open');
+  check($('.quota__body').textContent.includes('7 天'),'weekly window');
+  check($('.quota__body').textContent.includes('5 小时'),'five-hour window');
+  check($('.quota__body').textContent.includes('重置时间'),'reset shown');
+  check(calls===1,'open does not duplicate recent request');
+  const box=$('.quota__body').getBoundingClientRect(), head=$('.hd').getBoundingClientRect();
+  check(box.left>=head.left && box.right<=head.right,'details fit panel');
+  await ctx.snapshot('quota-light');
+  ctx.Services.prefs.setIntPref('browser.theme.toolbar-theme',0);
+  await ctx.sleep(300);
+  await ctx.snapshot('quota-dark');
+  ctx.Services.prefs.clearUserPref('browser.theme.toolbar-theme');
+  fail=true;$('.quota__body button').click();
+  await ctx.waitFor(()=>$('.quota__summary').textContent==='额度暂不可用','failure state');
+  check(!$('.quota__body').textContent.includes('剩余 89%'),'does not display stale percent as current');
+  fail=false;$('.quota__body button').click();
+  await ctx.waitFor(()=>$('.quota__summary').textContent==='剩余 89%','retry recovered');
+  await settings({auth:{...host.getSettings().auth,codex:'api-key'}});
+  await ctx.waitFor(()=>$('.quota').hidden,'hidden for API-key mode');
+  const before=calls;
+  await ctx.sleep(100);
+  check(calls===before,'no quota requests in API-key mode');
+  await settings({backend:'pi'});
+  check($('.quota').hidden,'hidden for another backend');
+  return {calls,quota:'ok',failureRetry:'ok',apiKeyHidden:'ok',layout:'ok'};
+}

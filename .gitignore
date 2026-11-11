@@ -1,0 +1,12 @@
+.DS_Store
+node_modules
+dist/
+.dev/
+.dev*/
+*.log
+.env
+*.sqlite*
+auth.json
+SESSION_LOG.md
+artifacts/
+__pycache__/

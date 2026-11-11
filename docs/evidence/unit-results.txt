@@ -1,0 +1,274 @@
+TAP version 13
+# Subtest: selects the Codex bucket, converts usage and preserves reset seconds
+ok 1 - selects the Codex bucket, converts usage and preserves reset seconds
+  ---
+  duration_ms: 0.59275
+  type: 'test'
+  ...
+# Subtest: handles legacy data and null primary without inventing a window
+ok 2 - handles legacy data and null primary without inventing a window
+  ---
+  duration_ms: 0.083458
+  type: 'test'
+  ...
+# Subtest: rejects missing, malformed and unrelated quota data
+ok 3 - rejects missing, malformed and unrelated quota data
+  ---
+  duration_ms: 0.097416
+  type: 'test'
+  ...
+# Subtest: reads only account RPCs and always stops its child
+ok 4 - reads only account RPCs and always stops its child
+  ---
+  duration_ms: 0.394792
+  type: 'test'
+  ...
+# Subtest: does not request subscription quota for API-key auth
+ok 5 - does not request subscription quota for API-key auth
+  ---
+  duration_ms: 0.187
+  type: 'test'
+  ...
+# Subtest: cleans up on timeout and unsupported RPCs
+ok 6 - cleans up on timeout and unsupported RPCs
+  ---
+  duration_ms: 17.008791
+  type: 'test'
+  ...
+# Subtest: the translator prompt: the language, the translation only, the text's instructions never followed, no tools, short
+ok 7 - the translator prompt: the language, the translation only, the text's instructions never followed, no tools, short
+  ---
+  duration_ms: 0.601917
+  type: 'test'
+  ...
+# Subtest: a request is the selection alone, tidied, and capped with a flag
+ok 8 - a request is the selection alone, tidied, and capped with a flag
+  ---
+  duration_ms: 0.335125
+  type: 'test'
+  ...
+# Subtest: 'Fastest available' reads the catalog's own descriptions; no id is hardcoded
+ok 9 - 'Fastest available' reads the catalog's own descriptions; no id is hardcoded
+  ---
+  duration_ms: 0.186083
+  type: 'test'
+  ...
+# Subtest: the lightest effort the backend offers
+ok 10 - the lightest effort the backend offers
+  ---
+  duration_ms: 0.0515
+  type: 'test'
+  ...
+# Subtest: the default target is Zotero's own language, English when it is not in the list
+ok 11 - the default target is Zotero's own language, English when it is not in the list
+  ---
+  duration_ms: 0.15725
+  type: 'test'
+  ...
+# Subtest: translate settings are validated like the others: defaults, a known language, per-backend models
+ok 12 - translate settings are validated like the others: defaults, a known language, per-backend models
+  ---
+  duration_ms: 0.27825
+  type: 'test'
+  ...
+# Subtest: a locked session: Claude's prompt is replaced and it has no tools; Codex is read-only; pi runs without tools
+ok 13 - a locked session: Claude's prompt is replaced and it has no tools; Codex is read-only; pi runs without tools
+  ---
+  duration_ms: 377.115291
+  type: 'test'
+  ...
+# Subtest: the engine: one warm locked session, the fast model, reused; a new language or model starts another
+ok 14 - the engine: one warm locked session, the fast model, reused; a new language or model starts another
+  ---
+  duration_ms: 480.143625
+  type: 'test'
+  ...
+# Subtest: the engine refuses every permission request and says plainly when nothing came back
+ok 15 - the engine refuses every permission request and says plainly when nothing came back
+  ---
+  duration_ms: 150.834958
+  type: 'test'
+  ...
+# Subtest: a newer request cancels the one running
+ok 16 - a newer request cancels the one running
+  ---
+  duration_ms: 300.4055
+  type: 'test'
+  ...
+# Subtest: a start that fails says so plainly
+ok 17 - a start that fails says so plainly
+  ---
+  duration_ms: 78.122125
+  type: 'test'
+  ...
+# Subtest: preload: a popup starts exactly one session, the press rides it; repeated popups start nothing more
+ok 18 - preload: a popup starts exactly one session, the press rides it; repeated popups start nothing more
+  ---
+  duration_ms: 640.876584
+  type: 'test'
+  ...
+# Subtest: a press while the preload is still starting shares that start
+ok 19 - a press while the preload is still starting shares that start
+  ---
+  duration_ms: 168.476959
+  type: 'test'
+  ...
+# Subtest: a model known up front starts the session on it (no switch after session/new); a bridge notice never joins the text
+ok 20 - a model known up front starts the session on it (no switch after session/new); a bridge notice never joins the text
+  ---
+  duration_ms: 151.695625
+  type: 'test'
+  ...
+# Subtest: streaming changes coalesce into a native cache invalidation and synchronous popup/overlay update
+ok 21 - streaming changes coalesce into a native cache invalidation and synchronous popup/overlay update
+  ---
+  duration_ms: 2.637709
+  type: 'test'
+  ...
+# Subtest: only currently visible paragraphs consume model calls; background tabs consume none
+ok 22 - only currently visible paragraphs consume model calls; background tabs consume none
+  ---
+  duration_ms: 2.754
+  type: 'test'
+  ...
+# Subtest: a disk read finishing after the paragraph leaves the viewport does not trigger a request
+ok 23 - a disk read finishing after the paragraph leaves the viewport does not trigger a request
+  ---
+  duration_ms: 0.124542
+  type: 'test'
+  ...
+# Subtest: persistent cache survives a new instance and makes a second reading cost zero model calls
+ok 24 - persistent cache survives a new instance and makes a second reading cost zero model calls
+  ---
+  duration_ms: 2.480459
+  type: 'test'
+  ...
+# Subtest: source, target, model and prompt changes invalidate precisely their cache entries
+ok 25 - source, target, model and prompt changes invalidate precisely their cache entries
+  ---
+  duration_ms: 0.178791
+  type: 'test'
+  ...
+# Subtest: cancelled or failed streams never enter the persistent cache and are not retried automatically
+ok 26 - cancelled or failed streams never enter the persistent cache and are not retried automatically
+  ---
+  duration_ms: 2.75025
+  type: 'test'
+  ...
+# Subtest: cache write failure is visible and does not pretend the translation was saved
+ok 27 - cache write failure is visible and does not pretend the translation was saved
+  ---
+  duration_ms: 0.242958
+  type: 'test'
+  ...
+# Subtest: corrupt cache is preserved and never silently overwritten
+ok 28 - corrupt cache is preserved and never silently overwritten
+  ---
+  duration_ms: 0.347167
+  type: 'test'
+  ...
+# Subtest: viewport boundaries exclude even nearby offscreen paragraphs; long paragraphs keep their tail
+ok 29 - viewport boundaries exclude even nearby offscreen paragraphs; long paragraphs keep their tail
+  ---
+  duration_ms: 0.119167
+  type: 'test'
+  ...
+# Subtest: cancel during session initialization cannot send a prompt later, and strict model mismatch is an error
+ok 30 - cancel during session initialization cannot send a prompt later, and strict model mismatch is an error
+  ---
+  duration_ms: 2.368208
+  type: 'test'
+  ...
+# Subtest: explicit retranslation bypasses cache and atomically replaces it; a failed refresh retains the saved translation
+ok 31 - explicit retranslation bypasses cache and atomically replaces it; a failed refresh retains the saved translation
+  ---
+  duration_ms: 5.123167
+  type: 'test'
+  ...
+# Subtest: teaching is gated on complete declared coverage and the exact PDF version
+ok 32 - teaching is gated on complete declared coverage and the exact PDF version
+  ---
+  duration_ms: 0.514084
+  type: 'test'
+  ...
+# Subtest: malformed, duplicate and executable link material cannot become teaching cards
+ok 33 - malformed, duplicate and executable link material cannot become teaching cards
+  ---
+  duration_ms: 0.143209
+  type: 'test'
+  ...
+# Subtest: quote matching tolerates line hyphens but rejects ambiguous or fabricated text
+ok 34 - quote matching tolerates line hyphens but rejects ambiguous or fabricated text
+  ---
+  duration_ms: 0.672875
+  type: 'test'
+  ...
+# Subtest: margin cards avoid overlap on each side without pinning offscreen cards to the viewport
+ok 35 - margin cards avoid overlap on each side without pinning offscreen cards to the viewport
+  ---
+  duration_ms: 0.109042
+  type: 'test'
+  ...
+# Subtest: guidance is idempotent and retains user rules around its managed block
+ok 36 - guidance is idempotent and retains user rules around its managed block
+  ---
+  duration_ms: 0.888708
+  type: 'test'
+  ...
+# Subtest: malformed guidance never consumes user instructions
+ok 37 - malformed guidance never consumes user instructions
+  ---
+  duration_ms: 0.166333
+  type: 'test'
+  ...
+# Subtest: portable Wiki rules have no personal paths or specific library IDs
+ok 38 - portable Wiki rules have no personal paths or specific library IDs
+  ---
+  duration_ms: 0.1545
+  type: 'test'
+  ...
+# Subtest: identifies library/group and Better Notes links without key collisions
+ok 39 - identifies library/group and Better Notes links without key collisions
+  ---
+  duration_ms: 2.792791
+  type: 'test'
+  ...
+# Subtest: keeps directed reciprocal edges, collapses page citations and skips self-links
+ok 40 - keeps directed reciprocal edges, collapses page citations and skips self-links
+  ---
+  duration_ms: 0.37675
+  type: 'test'
+  ...
+# Subtest: counts distinct unresolved targets and keeps hierarchy separate from note links
+ok 41 - counts distinct unresolved targets and keeps hierarchy separate from note links
+  ---
+  duration_ms: 0.133959
+  type: 'test'
+  ...
+# Subtest: filters attachments, supports local neighbors and never fabricates links
+ok 42 - filters attachments, supports local neighbors and never fabricates links
+  ---
+  duration_ms: 0.347417
+  type: 'test'
+  ...
+# Subtest: layout is deterministic and finite for empty, isolated and dense graphs
+ok 43 - layout is deterministic and finite for empty, isolated and dense graphs
+  ---
+  duration_ms: 76.22475
+  type: 'test'
+  ...
+# Subtest: graph documents accept only a versioned collection reference
+ok 44 - graph documents accept only a versioned collection reference
+  ---
+  duration_ms: 6.379958
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2955.380375

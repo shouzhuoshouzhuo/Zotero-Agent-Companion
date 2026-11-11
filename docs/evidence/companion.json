@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "result": {
+    "preparationGate": true,
+    "quoteAnchored": true,
+    "sharedConversation": true,
+    "persistedHistory": true,
+    "resume": true,
+    "zoomFinite": true,
+    "sdtMapping": true,
+    "quotaMirrored": true,
+    "toolEvents": true,
+    "normalPermissions": true,
+    "cardFold": true,
+    "dialogDrag": true,
+    "originalUnmodified": true,
+    "mathAndCitations": true,
+    "model": "deepseek-v4-pro"
+  },
+  "error": null,
+  "logs": []
+}

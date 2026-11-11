@@ -1,0 +1,11 @@
+{
+  "name": "Zotero Agent Companion",
+  "id": "chat@zotero-mcp",
+  "slug": "zotero-agent",
+  "version": "0.19.0",
+  "description": "An AI chat panel in Zotero that runs your own agent (Claude Code, Codex, pi): chat with your PDFs, cite pages, annotate and organise your library through zotero-cli.",
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://github.com/shouzhuoshouzhuo/Zotero-Agent-Companion",
+  "updateUrl": "https://raw.githubusercontent.com/shouzhuoshouzhuo/Zotero-Agent-Companion/main/plugin/updates.json",
+  "minZotero": "10.0"
+}

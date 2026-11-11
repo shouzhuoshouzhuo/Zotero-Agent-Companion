@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "result": {
+    "wizard": true,
+    "noAutomaticWrites": true,
+    "rulesPreserved": true,
+    "idempotent": true,
+    "skillsInstalled": true,
+    "customSkillPreserved": true,
+    "mainModelPreserved": true,
+    "translationModel": true,
+    "libraryUnchanged": true
+  },
+  "error": null,
+  "logs": []
+}

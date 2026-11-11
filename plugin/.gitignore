@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.xpi
+.dev/
+.dev*/
+artifacts/
+__pycache__/
